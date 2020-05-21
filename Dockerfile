@@ -3,6 +3,7 @@ ARG IMAGE=amd64/debian:10.4-slim
 FROM $IMAGE as builder
 
 ARG NASM_VERSION=2.14.02
+ARG LAME_VERSION=3.100
 ARG NGINX_VERSION=1.18.0
 ARG NGINXRTMP_VERSION=1.2.1
 ARG PYTHON_VERSION=3.8.2
@@ -40,6 +41,24 @@ RUN mkdir -p /dist && cd /dist && \
     tar -xvJ -f nasm-${NASM_VERSION}.tar.xz && \
     cd nasm-${NASM_VERSION} && \
     ./configure && \
+    make -j$(nproc) && \
+    make install
+
+# x264
+RUN mkdir -p /dist && cd /dist && \
+    curl -OL https://code.videolan.org/videolan/x264/-/archive/stable/x264-stable.tar.bz2 && \
+    tar -xvj -f x264-stable.tar.bz2 && \
+    cd x264-stable && \
+    ./configure --prefix="${SRC}" --bindir="${SRC}/bin" --enable-shared && \
+    make -j$(nproc) && \
+    make install
+
+# libmp3lame
+RUN mkdir -p /dist && cd /dist && \
+    curl -OL "https://downloads.sourceforge.net/project/lame/lame/${LAME_VERSION}/lame-${LAME_VERSION}.tar.gz" && \
+    tar -xvz -f lame-${LAME_VERSION}.tar.gz && \
+    cd lame-${LAME_VERSION} && \
+    ./configure --prefix="${SRC}" --bindir="${SRC}/bin" --disable-static --enable-nasm && \
     make -j$(nproc) && \
     make install
 
