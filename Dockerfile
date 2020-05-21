@@ -9,7 +9,10 @@ ARG NGINXRTMP_VERSION=1.2.1
 ARG PYTHON_VERSION=3.8.2
 ARG FFMPEG_VERSION=4.1.5
 
-ENV SRC="/usr/local/"
+ENV SRC="/usr/local/" \
+    LD_LIBRARY_PATH="/usr/local/lib" \
+    PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
+
 
 RUN apt-get update && \
     apt-get install -y \

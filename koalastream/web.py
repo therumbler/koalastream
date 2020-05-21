@@ -1,13 +1,17 @@
 """Koala Stream FastAPI web service"""
+import asyncio
 import logging
 import os
+
+from koalastream.koalastream import ffmpeg
 
 from fastapi import FastAPI, Response
 
 logger = logging.getLogger(__name__)
 
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
-
+YOUTUBE_STREAM_KEY = os.environ["YOUTUBE_STREAM_KEY"]
+TWITTER_STREAM_KEY = os.environ["TWITTER_STREAM_KEY"]
 
 def make_api():
     """create a FastAPI app"""
@@ -33,13 +37,15 @@ def make_api():
         type: str,
     ):
         # logger.info("kwargs: %s", kwargs)
-        if name == KS_STREAM_KEY:
-            logger.debug('valid stream key')
-            return {"sucess": True}
+        if name != KS_STREAM_KEY:
+            logger.error('invalid stream key %s', KS_STREAM_KEY)
+            response.status_code = 403
+            return {"success": False}
 
-        logger.error('invalid stream key %s', KS_STREAM_KEY)
-        response.status_code = 403
-        return {"success": False}
+        logger.debug('valid stream key')
+        outputs = [f"rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_STREAM_KEY}", f"rtmp://va.pscp.tv:80/x/{TWITTER_STREAM_KEY}"]
+        asyncio.create_task(ffmpeg(outputs))
+        return {"sucess": True}
 
 
     return api
