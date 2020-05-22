@@ -13,6 +13,7 @@ KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
 YOUTUBE_STREAM_KEY = os.environ["YOUTUBE_STREAM_KEY"]
 TWITTER_STREAM_KEY = os.environ["TWITTER_STREAM_KEY"]
 
+
 def make_api():
     """create a FastAPI app"""
 
@@ -38,13 +39,12 @@ def make_api():
     ):
         # logger.info("kwargs: %s", kwargs)
         if name != KS_STREAM_KEY:
-            logger.error('invalid stream key %s', KS_STREAM_KEY)
+            logger.error("invalid stream key %s", KS_STREAM_KEY)
             response.status_code = 403
             return {"success": False}
 
-        logger.debug('valid stream key')
+        logger.debug("valid stream key")
         asyncio.create_task(ffmpeg())
         return {"sucess": True}
-
 
     return api
