@@ -43,8 +43,7 @@ def make_api():
             return {"success": False}
 
         logger.debug('valid stream key')
-        outputs = [f"rtmp://a.rtmp.youtube.com/live2/{YOUTUBE_STREAM_KEY}", f"rtmp://va.pscp.tv:80/x/{TWITTER_STREAM_KEY}"]
-        asyncio.create_task(ffmpeg(outputs))
+        asyncio.create_task(ffmpeg())
         return {"sucess": True}
 
 
