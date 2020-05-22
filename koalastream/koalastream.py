@@ -5,9 +5,28 @@ import os
 
 logger = logging.getLogger(__name__)
 
+STREAMS = [
+    {"url": "rtmp://a.rtmp.youtube.com/live2", "name": "YouTube"},
+    {"url": "rtmp://va.pscp.tv:80/x", "name": "Twitter"},
+    {"url": "rtmp://live-iad05.twitch.tv/app", "name": "Twitch"},
+
+]
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
-async def ffmpeg(outputs:list):
-    """run ffmpeg comment to multiple outputs"""
+
+def _get_urls():
+    urls = []
+    for stream in STREAMS:
+        env_var = f"{stream['name'].upper()}_STREAM_KEY"
+        stream_key = os.getenv(env_var)
+        if stream_key:
+            urls.append(f"{stream['url']}/{stream_key}") 
+        else:
+            logger.debug('no key for %s', env_var)
+    return urls
+
+async def ffmpeg():
+    """run ffmpeg output to multiple outputs"""
+    urls = _get_urls()
 
     args = [
         "-i", f"rtmp://localhost:1935/live/{KS_STREAM_KEY}", 
@@ -19,7 +38,7 @@ async def ffmpeg(outputs:list):
         "-f", "tee", 
         "-map", "0:v", 
         "-map", "0:a", 
-        "|".join([f"[f=flv]{o}" for o in outputs]) 
+        "|".join([f"[f=flv]{u}" for u in urls]) 
     ]    
     logger.info('about to run %s', args)
     process = await asyncio.create_subprocess_exec(
@@ -35,8 +54,12 @@ async def ffmpeg(outputs:list):
     #stdout, stderr = await process.communicate()
     #logger.error('exited ffmpeg')
     #logger.info('output %s, %s', stdout.decode(), stderr.decode())
-    for line in await process.stdout.readline():
-        logger.info('ffmpeg output = %s', line)
+    while True:
+        line = await process.stdout.readline()
+        if not line:
+            logger.error('end of ffmpeg')
+            break
+        logger.info('line = %s', line.decode().strip())
 
     logger.error('ffmpeg exited')
 
