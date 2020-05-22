@@ -113,7 +113,7 @@ COPY Pipfile* ./
 RUN pipenv sync
 COPY . /app
 COPY conf/nginx.conf /koalastream/conf/nginx.conf
-COPY run.sh /koalastream/run.sh
+COPY docker-entrypoint.sh /koalastream/docker-entrypoint.sh
 
 
-CMD "./run.sh"
+CMD "./docker-entrypoint.sh"
