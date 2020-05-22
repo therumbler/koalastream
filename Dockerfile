@@ -104,9 +104,6 @@ RUN python3 -m pip install pipenv
 
 WORKDIR /koalastream
 
-COPY conf/nginx.conf /koalastream/conf/nginx.conf
-COPY run.sh /koalastream/run.sh
-
 
 
 RUN mkdir /app
@@ -115,5 +112,8 @@ COPY Pipfile* ./
 
 RUN pipenv sync
 COPY . /app
+COPY conf/nginx.conf /koalastream/conf/nginx.conf
+COPY run.sh /koalastream/run.sh
+
 
 CMD "./run.sh"
