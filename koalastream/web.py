@@ -3,19 +3,17 @@ import asyncio
 import logging
 import os
 
-from koalastream.koalastream import ffmpeg
+from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
 
 from fastapi import FastAPI, Response
 
 logger = logging.getLogger(__name__)
 
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
-YOUTUBE_STREAM_KEY = os.environ["YOUTUBE_STREAM_KEY"]
-TWITTER_STREAM_KEY = os.environ["TWITTER_STREAM_KEY"]
 
 
 def make_api():
-    """create a FastAPI app"""
+    """create the internal Docker FastAPI api"""
 
     api = FastAPI()
 
@@ -48,3 +46,24 @@ def make_api():
         return {"sucess": True}
 
     return api
+
+
+def make_web():
+    """make external web app"""
+    app = FastAPI(title="Koala Stream")
+
+    @app.post("/server")
+    async def create_server(response: Response,):
+        """create rtmp server"""
+        resp = await create_local_docker()
+        if "error" in resp:
+            response.status_code = 409
+        return resp
+
+    @app.delete("/server/{container_id}")
+    async def delete_server(container_id: str):
+        """"""
+        resp = await delete_local_docker(container_id)
+        return resp
+
+    return app

@@ -1,7 +1,10 @@
 """Koalastream ffmpeg"""
 import asyncio
+import contextlib
 import logging
 import os
+import socket
+from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +16,7 @@ STREAMS = [
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
 
 
-def _get_urls():
+def _get_service_urls():
     urls = []
     for stream in STREAMS:
         env_var = f"{stream['name'].upper()}_STREAM_KEY"
@@ -27,8 +30,10 @@ def _get_urls():
 
 async def ffmpeg():
     """run ffmpeg output to multiple outputs"""
-    urls = _get_urls()
-
+    service_urls = _get_service_urls()
+    if not service_urls:
+        logger.error("no services configured")
+        return
     args = [
         "-i",
         f"rtmp://localhost:1935/live/{KS_STREAM_KEY}",
@@ -61,3 +66,60 @@ async def ffmpeg():
         logger.info("line = %s", line.decode().strip())
 
     logger.error("ffmpeg exited")
+
+
+def _unused_tcp_port():
+    with contextlib.closing(socket.socket()) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+async def _run_cmd(cmd):
+    logger.info("running %s", " ".join(cmd))
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    if stderr:
+        logger.error(stderr.decode())
+    stdout = stdout.decode()
+    return stdout, stderr
+
+
+async def _docker_run(image_name: str, tcp_port: int):
+    """Run a docker container locally"""
+
+    cmd = [
+        "docker",
+        "run",
+        "--name",
+        f"koalastream_{uuid4()}",
+        "-p",
+        f"{tcp_port}:1935",
+        "-d",
+        image_name,
+    ]
+    stdout, stderr = await _run_cmd(cmd)
+    if stderr:
+        return {"error": stderr}
+    container_id = stdout
+    logger.info("docker started %s", container_id)
+    return {"container_id": container_id}
+
+
+async def create_local_docker():
+    """run a local docker instance of koalachat"""
+    image_name = "therumbler/koalastream"
+    port = _unused_tcp_port()
+    logger.info("port = %s", port)
+    return await _docker_run(image_name, tcp_port=port)
+
+
+async def delete_local_docker(container_id):
+    cmd = ["docker", "stop", container_id]
+    stdout, stderr = await _run_cmd(cmd)
+    if stderr:
+        logger.error("could not stop %s", container_id)
+    cmd = ["docker", "rm", container_id]
+
+    stdout, stderr = await _run_cmd(cmd)

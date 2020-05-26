@@ -3,8 +3,9 @@
 import logging
 import sys
 
-from koalastream.web import make_api
+from koalastream.web import make_api, make_web
 
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-api = make_api()
+internal_api = make_api()
+external_app = make_web()
