@@ -62,7 +62,7 @@ def make_web():
 
     @app.delete("/server/{container_id}")
     async def delete_server(container_id: str):
-        """"""
+        """delete the rtmp server"""
         resp = await delete_local_docker(container_id)
         return resp
 
