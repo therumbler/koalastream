@@ -112,7 +112,9 @@ async def create_local_docker():
     image_name = "therumbler/koalastream"
     port = _unused_tcp_port()
     logger.info("port = %s", port)
-    return await _docker_run(image_name, tcp_port=port)
+    resp = await _docker_run(image_name, tcp_port=port)
+    resp["port"] = port
+    return resp
 
 
 async def delete_local_docker(container_id):
