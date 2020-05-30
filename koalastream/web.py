@@ -3,9 +3,12 @@ import asyncio
 import logging
 import os
 
-from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
-
+import aiofiles
 from fastapi import FastAPI, Response
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import HTMLResponse
+
+from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +54,13 @@ def make_api():
 def make_web():
     """make external web app"""
     app = FastAPI(title="Koala Stream")
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+    @app.get("/")
+    async def index():
+        async with aiofiles.open("static/index.html") as f:
+            content = await f.read()
+        return HTMLResponse(content)
 
     @app.post("/server")
     async def create_server(response: Response,):
