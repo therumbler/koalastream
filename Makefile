@@ -4,3 +4,9 @@ build:
 
 run-external:
 	pipenv run uvicorn main:external_app --reload
+
+
+unit-test:
+	pipenv run pytest tests/unit/
+
+test: unit-test
