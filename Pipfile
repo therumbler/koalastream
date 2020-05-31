@@ -11,6 +11,7 @@ pytest = "*"
 fastapi = "*"
 uvicorn = "*"
 aiofiles = "*"
+email-validator = "*"
 
 [requires]
 python_version = "3.8"
