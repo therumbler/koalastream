@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 class Password(BaseModel):
-    password_hash: bytes
+    password_hash: str
     iterations: int
-    salt_hex: bytes
+    salt_hex: str
 
 
 class User(BaseModel):
@@ -27,4 +27,5 @@ class User(BaseModel):
             return val
         random_value = os.urandom(32)
         val = binascii.b2a_hex(random_value).decode()
+        logger.error("val types = %s", type(val))
         return val

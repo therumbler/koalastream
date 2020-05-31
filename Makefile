@@ -7,6 +7,6 @@ run-external:
 
 
 unit-test:
-	pipenv run pytest tests/unit/
+	pipenv run pytest -s tests/unit/
 
 test: unit-test

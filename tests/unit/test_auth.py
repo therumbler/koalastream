@@ -1,4 +1,5 @@
 """test the auth module"""
+from uuid import uuid4
 from koalastream.auth import get_password_hash, create_user
 
 
@@ -14,7 +15,7 @@ def test_get_password_hash():
 
 
 def test_create_user_success():
-    email = "fake@example.com"
+    email = f"{uuid4()}@example.com"
     password1 = "letmein"
     password2 = "letmein"
 
