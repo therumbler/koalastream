@@ -3,3 +3,4 @@
 *.swp
 .vscode
 koalastream/db/*
+.DS_Store
