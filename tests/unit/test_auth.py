@@ -1,6 +1,7 @@
 """test the auth module"""
 from uuid import uuid4
 from koalastream.auth import get_password_hash, create_user
+from koalastream.models.login import Signup
 
 
 def test_get_password_hash():
@@ -18,7 +19,7 @@ def test_create_user_success():
     email = f"{uuid4()}@example.com"
     password1 = "letmein"
     password2 = "letmein"
-
-    user = create_user(email, password1, password2)
+    signup = Signup(email=email, password1=password1, password2=password2)
+    user = create_user(signup)
 
     assert user.verification_token is not None

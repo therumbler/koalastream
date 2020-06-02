@@ -9,6 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
+from koalastream.models.login import Login, Signup
+from koalastream.auth import create_user
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,18 @@ def make_web():
             content = await f.read()
         return HTMLResponse(content)
 
+    @app.get("/login")
+    async def index():
+        async with aiofiles.open("static/login.html") as f:
+            content = await f.read()
+        return HTMLResponse(content)
+
+    @app.get("/signup")
+    async def index():
+        async with aiofiles.open("static/signup.html") as f:
+            content = await f.read()
+        return HTMLResponse(content)
+
     @app.post("/server")
     async def create_server(response: Response,):
         """create rtmp server"""
@@ -75,5 +89,19 @@ def make_web():
         """delete the rtmp server"""
         resp = await delete_local_docker(container_id)
         return resp
+
+    @app.post("/users/login")
+    async def user_login(*, login: Login):
+        logger.info("user login %s", login)
+        return {"success": True}
+
+    @app.post("/users/signup")
+    async def user_signup(*, response: Response, signup: Signup):
+        logger.info("user signup %s", signup)
+        try:
+            create_user(signup)
+        except ValueError as ex:
+            response.status_code = 400
+            return {"error": str(ex)}
 
     return app
