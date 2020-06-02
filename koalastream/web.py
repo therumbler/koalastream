@@ -60,6 +60,7 @@ def make_web():
 
     @app.get("/")
     async def index():
+        logger.info('in index')
         async with aiofiles.open("static/index.html") as f:
             content = await f.read()
         return HTMLResponse(content)
@@ -103,5 +104,6 @@ def make_web():
         except ValueError as ex:
             response.status_code = 400
             return {"error": str(ex)}
+        return {"success": True}
 
     return app

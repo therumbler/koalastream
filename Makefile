@@ -3,7 +3,7 @@ build:
 	docker build -t ${DOCKER_USER}/koalastream .
 
 run-external:
-	pipenv run uvicorn main:external_app --reload
+	pipenv run uvicorn main:external_app --port=13001 --reload
 
 
 unit-test:

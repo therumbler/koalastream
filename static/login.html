@@ -4,21 +4,27 @@
     <title>Koala Stream</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/css/koalastream.css">
+    <link rel="stylesheet" href="static/assets/css/main.css">
+    <link rel="icon" type="image/x-icon" href="./static/favicon.ico" />
 </head>
 
 <body>
-    <div id="main">
-        <header>
-            <h1>Koala Stream</h1>
+
+    <div id="page-wrapper">
+        <header id="header">
+            <h1 id="logo"><a href="./">Koala Stream</a></h1>
         </header>
-        <article>
-            <form id="login">
-                <label for="email">email</label><input type="text" name="email" placeholder="email" />
-                <label for="password">password</label><input type="password" name="password" placeholder="password">
-            </form>
-        </article>
+        <div id="main" class="wrapper">
+            <section>
+                <h2>Log In</h2>
+                <form id="login" action="#">
+                    <input type="text" name="email" placeholder="email" />
+                    <input type="password" name="password" placeholder="password">
+                    <input type="submit" value="login" class="button primary" />
+                </form>
+            </section>
+        </div>
     </div>
     <script src="static/js/koalastream.js"></script>
 </body>
-
 </html>
