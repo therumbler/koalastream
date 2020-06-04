@@ -61,19 +61,18 @@ def make_web():
 
     @app.get("/")
     async def index():
-        logger.info("in index")
         async with aiofiles.open("static/index.html") as f:
             content = await f.read()
         return HTMLResponse(content)
 
     @app.get("/login")
-    async def index():
+    async def login_static():
         async with aiofiles.open("static/login.html") as f:
             content = await f.read()
         return HTMLResponse(content)
 
     @app.get("/signup")
-    async def index():
+    async def signup_static():
         async with aiofiles.open("static/signup.html") as f:
             content = await f.read()
         return HTMLResponse(content)
