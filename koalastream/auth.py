@@ -17,6 +17,7 @@ DB_PATH = f"{Path(__file__).parent}/db"
 ITERATIONS = 100000
 
 HOSTNAME = os.environ["HOSTNAME"]
+KS_EMAIL = os.environ["KS_EMAIL"]
 logger = logging.getLogger(__name__)
 
 
@@ -70,10 +71,7 @@ async def send_user_email(user: User):
     """
     try:
         await sendmail(
-            message_body,
-            [user.email,],
-            "Koala Stream Verification",
-            f"koalastream@{HOSTNAME}",
+            message_body, [user.email,], "Koala Stream Verification", KS_EMAIL,
         )
     except Exception as ex:
         logger.exception(ex)
