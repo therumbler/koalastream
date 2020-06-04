@@ -1,5 +1,6 @@
 """Is this a bad idea?"""
 import binascii
+import functools
 import hashlib
 import json
 import logging
@@ -143,6 +144,17 @@ def _get_token_filepath(token: Token):
     return filepath
 
 
+async def read_token(token: str) -> Optional[Token]:
+    filepath = f"{DB_PATH}/tokens/{token}.json"
+    try:
+        async with aiofiles.open(filepath) as f:
+            file_dict = json.loads(await f.read())
+    except FileNotFoundError as ex:
+        logger.error("no token at %s", filepath)
+        return None
+    return Token(**file_dict)
+
+
 async def save_token(token: Token):
     filepath = _get_token_filepath(token)
     parent = Path(filepath).parent
@@ -161,3 +173,17 @@ async def save_user(user: User):
         os.makedirs(parent)
     async with aiofiles.open(filepath, "w") as f:
         await f.write(json.dumps(user.dict()))
+
+
+def verify_with_token():
+    """async decorator to check for token existence"""
+
+    def wrapper(func):
+        @functools.wraps(func)
+        async def inner(*args, **kwargs):
+            logger.info("args %s kwargs %s", args, kwargs)
+            return await func(*args, **kwargs)
+
+        return inner
+
+    return wrapper

@@ -11,7 +11,7 @@ from starlette.responses import HTMLResponse
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
 from koalastream.models.login import Login
 from koalastream.models.signup import Signup
-from koalastream.auth import create_user, do_login, verify_user
+from koalastream.auth import create_user, do_login, verify_user, verify_with_token
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,8 @@ def make_web():
         return HTMLResponse(content)
 
     @app.post("/server")
-    async def create_server(response: Response,):
+    @verify_with_token()
+    async def create_server(response: Response):
         """create rtmp server"""
         resp = await create_local_docker()
         if "error" in resp:
@@ -86,9 +87,13 @@ def make_web():
         return resp
 
     @app.delete("/server/{container_id}")
-    async def delete_server(container_id: str):
+    async def delete_server(response: Response, container_id: str):
         """delete the rtmp server"""
         resp = await delete_local_docker(container_id)
+        if "error" in resp:
+            response.status_code = 400
+            if "No such container" in resp["error"]:
+                response.status_code = 404
         return resp
 
     @app.post("/users/login")

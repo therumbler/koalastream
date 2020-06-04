@@ -122,6 +122,7 @@ async def delete_local_docker(container_id):
     stdout, stderr = await _run_cmd(cmd)
     if stderr:
         logger.error("could not stop %s", container_id)
+        return {"error": str(stderr.decode())}
     cmd = ["docker", "rm", container_id]
 
     stdout, stderr = await _run_cmd(cmd)
