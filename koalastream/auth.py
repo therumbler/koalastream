@@ -11,6 +11,7 @@ import aiofiles
 from .models.user import Password, User
 from .models.signup import Signup
 from .models.login import Login
+from .models.token import Token
 from .email import sendmail
 
 DB_PATH = f"{Path(__file__).parent}/db"
@@ -50,8 +51,12 @@ async def create_user(signup: Signup) -> User:
     return user
 
 
+async def create_api_token(user: User):
+    pass
+
+
 async def verify_user(user_id: str, verification_token: str) -> bool:
-    user = await read_user_by_user_id(user_id)
+    user: User = await read_user_by_user_id(user_id)
     if not user:
         raise ValueError("user not found")
     if user.verified:
@@ -61,6 +66,7 @@ async def verify_user(user_id: str, verification_token: str) -> bool:
 
     user.verified = True
     await save_user(user)
+
     return True
 
 
@@ -100,7 +106,9 @@ async def do_login(login: Login) -> User:
         raise ValueError("invalid email or password")
     if not user.verified:
         raise ValueError("please check your email for verification email")
-    return user
+    token = Token(user_id=user.user_id)
+    await save_token(token)
+    return token
 
 
 def _get_user_filepath(email: str):
@@ -128,6 +136,21 @@ async def read_user(email) -> Optional[User]:
     except FileNotFoundError:
         return None
     return User(**file_dict)
+
+
+def _get_token_filepath(token: Token):
+    filepath = f"{DB_PATH}/users/{token.token}.json"
+    return filepath
+
+
+async def save_token(token: Token):
+    filepath = _get_token_filepath(token)
+    parent = Path(filepath).parent
+    if not os.path.isdir(parent):
+        os.makedirs(parent)
+    logger.info("saving token to %s", filepath)
+    async with aiofiles.open(filepath, "w") as f:
+        await f.write(json.dumps(token.dict()))
 
 
 async def save_user(user: User):

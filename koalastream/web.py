@@ -95,13 +95,13 @@ def make_web():
     async def user_login(*, response: Response, login: Login):
         logger.info("user login %s", login)
         try:
-            await do_login(login)
+            token = await do_login(login)
         except ValueError as ex:
             logger.error("unable to log in %s", str(ex))
             response.status_code = 401
             return {"error": str(ex)}
-        logger.info("success")
-        return {"success": True}
+        logger.info("login success")
+        return token
 
     @app.post("/users/signup")
     async def user_signup(*, response: Response, signup: Signup):
