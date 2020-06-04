@@ -11,7 +11,7 @@ from starlette.responses import HTMLResponse
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
 from koalastream.models.login import Login
 from koalastream.models.signup import Signup
-from koalastream.auth import create_user, do_login
+from koalastream.auth import create_user, do_login, verify_user
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +111,16 @@ def make_web():
             await create_user(signup)
         except ValueError as ex:
             response.status_code = 400
+            return {"error": str(ex)}
+        return {"success": True}
+
+    @app.get("/users/verify")
+    async def user_verify(*, response: Response, user: str, token: str):
+        logger.info("user_verify user %s, token %s", user, token)
+        try:
+            await verify_user(user_id=user, verification_token=token)
+        except ValueError as ex:
+            response.status_code = 401
             return {"error": str(ex)}
         return {"success": True}
 

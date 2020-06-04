@@ -11,10 +11,12 @@ import aiofiles
 from .models.user import Password, User
 from .models.signup import Signup
 from .models.login import Login
+from .email import sendmail
 
 DB_PATH = f"{Path(__file__).parent}/db"
 ITERATIONS = 100000
-MAX_PASSWORD_LENGTH = 128
+
+HOSTNAME = os.environ["HOSTNAME"]
 logger = logging.getLogger(__name__)
 
 
@@ -47,8 +49,39 @@ async def create_user(signup: Signup) -> User:
     return user
 
 
+async def verify_user(user_id: str, verification_token: str) -> bool:
+    user = await read_user_by_user_id(user_id)
+    if not user:
+        raise ValueError("user not found")
+    if user.verification_token != verification_token:
+        raise ValueError("invalid token")
+
+    user.verified = True
+    await save_user(user)
+    return True
+
+
 async def send_user_email(user: User):
-    pass
+    message_body = f"""
+
+    click here to verify your email
+
+    {HOSTNAME}/users/verify?user={user.user_id}&token={user.verification_token}
+    """
+    try:
+        await sendmail(
+            message_body,
+            [user.email,],
+            "Koala Stream Verification",
+            f"koalastream@{HOSTNAME}",
+        )
+    except Exception as ex:
+        logger.exception(ex)
+        logger.error("unable to send email to %s", user.email)
+        return False
+    user.email_sent = True
+    await save_user(user)
+    return True
 
 
 async def do_login(login: Login) -> User:
@@ -74,6 +107,17 @@ def _get_user_filepath(email: str):
     email_hash = hashlib.sha256(email.encode()).hexdigest()
     filepath = f"{DB_PATH}/users/{email_hash}.json"
     return filepath
+
+
+async def read_user_by_user_id(user_id: str):
+    filepath = f"{DB_PATH}/users/{user_id}.json"
+    try:
+        async with aiofiles.open(filepath) as f:
+            file_dict = json.loads(await f.read())
+    except FileNotFoundError:
+        logger.error("cannot find user id %s", user_id)
+        return None
+    return User(**file_dict)
 
 
 async def read_user(email) -> Optional[User]:
