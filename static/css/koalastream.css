@@ -7,3 +7,7 @@ body {
     margin-right: auto;
     max-width: 800px;
 }
+
+.error {
+    color: #e44c65 !important;
+}
