@@ -139,7 +139,7 @@ async def read_user(email) -> Optional[User]:
 
 
 def _get_token_filepath(token: Token):
-    filepath = f"{DB_PATH}/users/{token.token}.json"
+    filepath = f"{DB_PATH}/tokens/{token.token}.json"
     return filepath
 
 
