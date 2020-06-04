@@ -1,6 +1,5 @@
 (function () {
     var formSignup = document.querySelector('#signup');
-
     var formLogin = document.querySelector('#login')
 
     var messages = document.querySelector('#messages');
@@ -23,6 +22,7 @@
     }
     async function doSignup(evt) {
         evt.preventDefault();
+        messages.innerHTML = "";
         const data = {
             password1: document.querySelector('#password1').value,
             password2: document.querySelector('#password2').value,
@@ -40,6 +40,7 @@
 
     async function doLogin(evt) {
         evt.preventDefault();
+        messages.innerHTML = "";
         const data = {
             email: document.querySelector('#email').value,
             password: document.querySelector('#password').value
