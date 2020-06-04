@@ -9,8 +9,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
-from koalastream.models.login import Login, Signup
-from koalastream.auth import create_user
+from koalastream.models.login import Login
+from koalastream.models.signup import Signup
+from koalastream.auth import create_user, do_login
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def make_web():
 
     @app.get("/")
     async def index():
-        logger.info('in index')
+        logger.info("in index")
         async with aiofiles.open("static/index.html") as f:
             content = await f.read()
         return HTMLResponse(content)
@@ -92,15 +93,22 @@ def make_web():
         return resp
 
     @app.post("/users/login")
-    async def user_login(*, login: Login):
+    async def user_login(*, response: Response, login: Login):
         logger.info("user login %s", login)
+        try:
+            await do_login(login)
+        except ValueError as ex:
+            logger.error("unable to log in %s", str(ex))
+            response.status_code = 401
+            return {"error": str(ex)}
+        logger.info("success")
         return {"success": True}
 
     @app.post("/users/signup")
     async def user_signup(*, response: Response, signup: Signup):
         logger.info("user signup %s", signup)
         try:
-            create_user(signup)
+            await create_user(signup)
         except ValueError as ex:
             response.status_code = 400
             return {"error": str(ex)}
