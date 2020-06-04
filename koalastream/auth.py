@@ -54,6 +54,8 @@ async def verify_user(user_id: str, verification_token: str) -> bool:
     user = await read_user_by_user_id(user_id)
     if not user:
         raise ValueError("user not found")
+    if user.verified:
+        raise ValueError("invalid token")
     if user.verification_token != verification_token:
         raise ValueError("invalid token")
 
