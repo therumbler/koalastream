@@ -12,6 +12,7 @@ fastapi = "*"
 uvicorn = "*"
 aiofiles = "*"
 email-validator = "*"
+python-multipart = "*"
 
 [requires]
 python_version = "3.8"
