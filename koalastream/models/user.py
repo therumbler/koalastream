@@ -2,10 +2,15 @@ import binascii
 import hashlib
 import logging
 import os
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator, Field
 
 
 logger = logging.getLogger(__name__)
+
+
+def create_verification_token():
+    random_value = os.urandom(32)
+    return binascii.b2a_hex(random_value).decode()
 
 
 class Password(BaseModel):
@@ -19,18 +24,8 @@ class User(BaseModel):
     email_sent: bool = False
     verified: bool = False
     password: Password
-    verification_token: str = None
+    verification_token: str = Field(default_factory=create_verification_token)
     user_id: str = None
-
-    @validator("verification_token", always=True)
-    def create_verification_token(cls, val):
-        """Set a default value"""
-        if val:
-            return val
-        random_value = os.urandom(32)
-        val = binascii.b2a_hex(random_value).decode()
-        logger.error("val types = %s", type(val))
-        return val
 
     @validator("user_id", always=True)
     def create_user_id(cls, v, values):
