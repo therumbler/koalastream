@@ -126,3 +126,4 @@ async def delete_local_docker(container_id):
     cmd = ["docker", "rm", container_id]
 
     stdout, stderr = await _run_cmd(cmd)
+    return {"container_id": container_id}

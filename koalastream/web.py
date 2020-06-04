@@ -4,8 +4,9 @@ import logging
 import os
 
 import aiofiles
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Depends, Form
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import HTMLResponse
 
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
@@ -58,6 +59,7 @@ def make_web():
     """make external web app"""
     app = FastAPI(title="Koala Stream")
     app.mount("/static", StaticFiles(directory="static"), name="static")
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
     @app.get("/")
     async def index():
@@ -79,7 +81,7 @@ def make_web():
 
     @app.post("/server")
     @verify_with_token()
-    async def create_server(response: Response):
+    async def create_server(response: Response, token: str = Depends(oauth2_scheme)):
         """create rtmp server"""
         resp = await create_local_docker()
         if "error" in resp:
@@ -87,7 +89,10 @@ def make_web():
         return resp
 
     @app.delete("/server/{container_id}")
-    async def delete_server(response: Response, container_id: str):
+    @verify_with_token()
+    async def delete_server(
+        response: Response, container_id: str, token: str = Depends(oauth2_scheme)
+    ):
         """delete the rtmp server"""
         resp = await delete_local_docker(container_id)
         if "error" in resp:
@@ -107,6 +112,21 @@ def make_web():
             return {"error": str(ex)}
         logger.info("login success")
         return token
+
+    @app.post("/users/token")
+    async def user_token(
+        *, response: Response, username: str = Form(...), password: str = Form(...)
+    ):
+        """oauth2 style form login"""
+        login = Login(email=username, password=password)
+        try:
+            token = await do_login(login)
+        except ValueError as ex:
+            logger.error("unable to log in %s", str(ex))
+            response.status_code = 401
+            return {"error": str(ex)}
+        logger.info("login success")
+        return {"access_token": token.token, "token_type": "bearer"}
 
     @app.post("/users/signup")
     async def user_signup(*, response: Response, signup: Signup):

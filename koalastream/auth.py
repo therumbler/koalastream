@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 import aiofiles
+from fastapi import HTTPException
 from .models.user import Password, User
 from .models.signup import Signup
 from .models.login import Login
@@ -182,6 +183,12 @@ def verify_with_token():
         @functools.wraps(func)
         async def inner(*args, **kwargs):
             logger.info("args %s kwargs %s", args, kwargs)
+            token_string = kwargs.pop("token")
+            token = await read_token(token_string)
+            if not token:
+                logger.error("not authenticated")
+                raise HTTPException(status_code=403, detail="invalid token")
+            logger.info("token is valid %s", token.token)
             return await func(*args, **kwargs)
 
         return inner
