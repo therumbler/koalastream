@@ -17,6 +17,7 @@ from koalastream.auth import create_user, do_login, verify_user, verify_with_tok
 logger = logging.getLogger(__name__)
 
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
+OPEN_API_PREFIX = os.getenv("KS_OPEN_API_PREFIX", "")
 
 
 def make_api():
@@ -57,7 +58,7 @@ def make_api():
 
 def make_web():
     """make external web app"""
-    app = FastAPI(title="Koala Stream")
+    app = FastAPI(title="Koala Stream", openapi_prefix=OPEN_API_PREFIX)
     app.mount("/static", StaticFiles(directory="static"), name="static")
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
