@@ -76,9 +76,14 @@ def _unused_tcp_port():
 
 async def _run_cmd(cmd):
     logger.info("running %s", " ".join(cmd))
-    process = await asyncio.create_subprocess_exec(
-        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-    )
+    try:
+        process = await asyncio.create_subprocess_exec(
+            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+    except FileNotFoundError:
+        error_message = f"cannot find process {cmd[0]}".encode()
+        logger.error(error_message)
+        return None, error_message 
     stdout, stderr = await process.communicate()
     if stderr:
         logger.error(stderr.decode())
