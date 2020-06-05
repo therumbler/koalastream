@@ -60,7 +60,7 @@ def make_web():
     """make external web app"""
     app = FastAPI(title="Koala Stream", openapi_prefix=OPEN_API_PREFIX)
     app.mount("/static", StaticFiles(directory="static"), name="static")
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="./users/token")
 
     @app.get("/")
     async def index():
