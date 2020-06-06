@@ -17,8 +17,12 @@
             document.querySelector(selector).classList.add('error');
         }
     }
-    function handleSuccess(respJson) {
-        console.log('sucess');
+    function handleSuccess(form, respJson) {
+        console.log('success');
+        var reset = document.querySelector('input[type=reset]');
+        reset.click();
+        form.reset();
+        messages.innerHTML = 'success';
     }
     async function doSignup(evt) {
         evt.preventDefault();
@@ -31,7 +35,7 @@
         const resp = await fetch('./users/signup', { method: 'POST', body: JSON.stringify(data) });
         const respJson = await resp.json();
         if (resp.ok) {
-            handleSuccess(respJson);
+            handleSuccess(evt.target, respJson);
         } else {
             handleError(respJson);
         }
@@ -40,6 +44,7 @@
 
     async function doLogin(evt) {
         evt.preventDefault();
+        console.log(evt);
         messages.innerHTML = "";
         const data = {
             email: document.querySelector('#email').value,
@@ -48,9 +53,9 @@
         const resp = await fetch('./users/login', { method: 'POST', body: JSON.stringify(data) });
         const respJson = await resp.json();
         if (resp.ok) {
-            handleSuccess(respJson)
+            handleSuccess(evt.target, respJson);
         } else {
-            handleError(respJson)
+            handleError(respJson);
         }
         return false;
     }
