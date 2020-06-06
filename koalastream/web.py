@@ -74,6 +74,12 @@ def make_web():
             content = await f.read()
         return HTMLResponse(content)
 
+    @app.get("/app")
+    async def app_static():
+        async with aiofiles.open("static/app.html") as f:
+            content = await f.read()
+        return HTMLResponse(content)
+
     @app.get("/signup")
     async def signup_static():
         async with aiofiles.open("static/signup.html") as f:

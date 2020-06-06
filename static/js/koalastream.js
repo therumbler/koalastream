@@ -17,12 +17,31 @@
             document.querySelector(selector).classList.add('error');
         }
     }
+    function redirectToApp() {
+        if (window.location.pathname.indexOf('/app') > -1) {
+            return;
+        }
+        var pathname = window.location.pathname;
+        var lastSlash = pathname.lastIndexOf('/');
+        // if (lastSlash > 0) {
+        pathname = pathname.substr(0, lastSlash) + '/app'
+
+        // }
+        console.log('pathname = ', pathname);
+        window.location.replace(pathname)
+    }
     function handleSuccess(form, respJson) {
         console.log('success');
+        console.log(respJson);
         var reset = document.querySelector('input[type=reset]');
         reset.click();
         form.reset();
         messages.innerHTML = 'success';
+        if (respJson.hasOwnProperty('token')) {
+            localStorage.setItem('token', respJson.token);
+            redirectToApp();
+        }
+
     }
     async function doSignup(evt) {
         evt.preventDefault();
@@ -65,4 +84,26 @@
     if (formLogin) {
         formLogin.addEventListener('submit', doLogin);
     }
+
+    function checkIsSignedIn() {
+        var token = localStorage.getItem('token');
+        if (token !== null) {
+            console.log('already signed in');
+            console.log(token);
+            return true;
+        }
+        return false
+    }
+    function init() {
+        var isSignedIn = checkIsSignedIn();
+        if (!isSignedIn) {
+            if (window.location.pathname.indexOf('app') > 0) {
+                var pathname = window.location.pathname.replace('app', '');
+                window.location.replace(pathname);
+            }
+        } else {
+            redirectToApp();
+        }
+    }
+    init();
 })();
