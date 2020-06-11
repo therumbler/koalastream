@@ -6,9 +6,13 @@
         var url = 'server';
         var YOUTUBE_STREAM_KEY = document.querySelector('#YOUTUBE_STREAM_KEY').value;
         var TWITCH_STREAM_KEY = document.querySelector('#YOUTUBE_STREAM_KEY').value;
+        var TWITTER_STREAM_KEY = document.querySelector('#TWITTER_STREAM_KEY').value;
+        var KS_STREAM_KEY = document.querySelector('#KS_STREAM_KEY').value;
         var data = {
             'YOUTUBE_STREAM_KEY': YOUTUBE_STREAM_KEY,
-            'TWITCH_STREAM_KEY': TWITCH_STREAM_KEY
+            'KS_STREAM_KEY': KS_STREAM_KEY,
+            'TWITCH_STREAM_KEY': TWITCH_STREAM_KEY,
+            'TWITTER_STREAM_KEY': TWITTER_STREAM_KEY
         }
         var headers = {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
