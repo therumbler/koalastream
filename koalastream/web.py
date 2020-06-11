@@ -12,6 +12,7 @@ from starlette.responses import HTMLResponse
 from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
 from koalastream.models.login import Login
 from koalastream.models.signup import Signup
+from koalastream.models.server import Server
 from koalastream.auth import create_user, do_login, verify_user, verify_with_token
 
 logger = logging.getLogger(__name__)
@@ -88,9 +89,9 @@ def make_web():
 
     @app.post("/server")
     @verify_with_token()
-    async def create_server(response: Response, token: str = Depends(oauth2_scheme)):
+    async def create_server(response: Response, server: Server, token: str = Depends(oauth2_scheme)):
         """create rtmp server"""
-        resp = await create_local_docker()
+        resp = await create_local_docker(server)
         if "error" in resp:
             response.status_code = 409
         return resp
