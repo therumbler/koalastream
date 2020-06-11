@@ -49,7 +49,7 @@ async def ffmpeg():
         "0:v",
         "-map",
         "0:a",
-        "|".join([f"[f=flv]{u}" for u in urls]),
+        "|".join([f"[f=flv]{u}" for u in service_urls]),
     ]
     logger.info("about to run %s", args)
     process = await asyncio.create_subprocess_exec(
