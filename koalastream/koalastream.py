@@ -6,6 +6,8 @@ import os
 import socket
 from uuid import uuid4
 
+from koalastream.models.server import Server
+
 logger = logging.getLogger(__name__)
 
 STREAMS = [
@@ -91,8 +93,12 @@ async def _run_cmd(cmd):
     return stdout, stderr
 
 
-async def _docker_run(image_name: str, tcp_port: int):
+async def _docker_run(image_name: str, tcp_port: int, **env_vars):
     """Run a docker container locally"""
+
+    logger.info('about to run %s', env_vars)
+    env_list = [("-e", f"{k}={v}") for k, v in env_vars.items()]
+    flattened = [i for sublist in env_list for i in sublist]
 
     cmd = [
         "docker",
@@ -102,6 +108,7 @@ async def _docker_run(image_name: str, tcp_port: int):
         "-p",
         f"{tcp_port}:1935",
         "-d",
+        *flattened,
         image_name,
     ]
     stdout, stderr = await _run_cmd(cmd)
@@ -112,12 +119,14 @@ async def _docker_run(image_name: str, tcp_port: int):
     return {"container_id": container_id}
 
 
-async def create_local_docker():
+async def create_local_docker(server: Server):
     """run a local docker instance of koalachat"""
+    logger.info('starting server %s', server)
+    logger.info(dict(server))
     image_name = "therumbler/koalastream"
     port = _unused_tcp_port()
     logger.info("port = %s", port)
-    resp = await _docker_run(image_name, tcp_port=port)
+    resp = await _docker_run(image_name, tcp_port=port, **dict(server))
     resp["port"] = port
     return resp
 
