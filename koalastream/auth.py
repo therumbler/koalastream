@@ -1,4 +1,5 @@
 """Is this a bad idea?"""
+import asyncio
 import binascii
 import functools
 import hashlib
@@ -49,7 +50,7 @@ async def create_user(signup: Signup) -> User:
     password = get_password_hash(signup.password1, ITERATIONS)
     user = User(email=signup.email, password=password)
     await save_user(user)
-    await send_user_email(user)
+    asyncio.create_task(send_user_email(user))
     return user
 
 
