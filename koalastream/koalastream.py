@@ -85,7 +85,7 @@ async def _run_cmd(cmd):
     except FileNotFoundError:
         error_message = f"cannot find process {cmd[0]}".encode()
         logger.error(error_message)
-        return None, error_message 
+        return None, error_message
     stdout, stderr = await process.communicate()
     if stderr:
         logger.error(stderr.decode())
@@ -96,8 +96,8 @@ async def _run_cmd(cmd):
 async def _docker_run(image_name: str, tcp_port: int, **env_vars):
     """Run a docker container locally"""
 
-    logger.info('about to run %s', env_vars)
-    env_list = [("-e", f"{k}={v}") for k, v in env_vars.items()]
+    logger.info("about to run %s", env_vars)
+    env_list = [("-e", f"{k}={v}") for k, v in env_vars.items() if v]
     flattened = [i for sublist in env_list for i in sublist]
 
     cmd = [
@@ -121,7 +121,7 @@ async def _docker_run(image_name: str, tcp_port: int, **env_vars):
 
 async def create_local_docker(server: Server):
     """run a local docker instance of koalachat"""
-    logger.info('starting server %s', server)
+    logger.info("starting server %s", server)
     logger.info(dict(server))
     image_name = "therumbler/koalastream"
     port = _unused_tcp_port()
