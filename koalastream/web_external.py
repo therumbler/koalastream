@@ -9,7 +9,7 @@ from starlette.responses import HTMLResponse
 
 
 
-from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
+from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker, STREAMS
 from koalastream.models.login import Login
 from koalastream.models.signup import Signup
 from koalastream.models.server import Server
@@ -73,7 +73,6 @@ def make_web():
 
     @app.post("/users/login")
     async def user_login(*, response: Response, login: Login):
-        logger.info("user login %s", login)
         try:
             token = await do_login(login)
         except ValueError as ex:
