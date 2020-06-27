@@ -18,3 +18,7 @@ class Signup(BaseModel):
                 f"password cannot be longer than {MAX_PASSWORD_LENGTH} characters"
             )
         return password2
+
+    @validator('email')
+    def email_to_lowercase(cls, val):
+        return val.lower()
