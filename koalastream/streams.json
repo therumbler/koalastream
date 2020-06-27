@@ -1,0 +1,7 @@
+{
+    "streams": [
+        {"url": "rtmp://a.rtmp.youtube.com/live2", "name": "YouTube"},
+        {"url": "rtmp://va.pscp.tv:80/x", "name": "Twitter"},
+        {"url": "rtmp://live-iad05.twitch.tv/app", "name": "Twitch"}
+    ]
+}
