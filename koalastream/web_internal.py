@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import HTMLResponse
 
-from koalastream.koalastream import ffmpeg, create_local_docker, delete_local_docker
+from koalastream.koalastream import ffmpeg 
 logger = logging.getLogger(__name__)
 
 KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
