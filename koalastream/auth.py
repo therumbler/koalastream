@@ -22,6 +22,7 @@ ITERATIONS = 100000
 
 HOSTNAME = os.environ["HOSTNAME"]
 KS_EMAIL = os.environ["KS_EMAIL"]
+KS_ADMIN_EMAIL = os.getenv('KS_ADMIN_EMAIL')
 logger = logging.getLogger(__name__)
 
 
@@ -75,14 +76,15 @@ async def verify_user(user_id: str, verification_token: str) -> bool:
 
 async def send_user_email(user: User):
     message_body = f"""
-
-    click here to verify your email
+    Hi {user.email}
+    click below to verify your email
 
     {HOSTNAME}/users/verify?user={user.user_id}&token={user.verification_token}
     """
+
     try:
         await sendmail(
-            message_body, [user.email,], "Koala Stream Verification", KS_EMAIL,
+            message_body, [user.email,], "Koala Stream Verification", KS_EMAIL, bcc=KS_ADMIN_EMAIL
         )
     except Exception as ex:
         logger.exception(ex)
