@@ -9,15 +9,19 @@ logger = logging.getLogger(__name__)
 SENDMAIL = "/usr/sbin/sendmail"
 
 
-async def sendmail(message_body: str, recipients: list, subject: str, from_email: str):
+async def sendmail(message_body: str, recipients: list, subject: str, from_email: str, bcc=None):
     """use asyncio to call sendmail"""
     if not isinstance(recipients, list):
         recipients = [recipients]
-
     message = MIMEText(message_body)
     message["Subject"] = subject
     message["From"] = from_email
     message["To"] = "; ".join(recipients)
+    if bcc:
+        if not isinstance(bcc, list):
+            bcc = [bcc]
+        message['Bcc'] = "; ".join(bcc)
+
 
     message_string = message.as_string()
     logger.info("sending %s to %s", message_string, message["To"])
