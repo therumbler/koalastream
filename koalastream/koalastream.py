@@ -1,8 +1,10 @@
 """Koalastream ffmpeg"""
 import asyncio
 import contextlib
+import json
 import logging
 import os
+from pathlib import Path
 import socket
 from uuid import uuid4
 
@@ -10,12 +12,15 @@ from koalastream.models.server import Server
 
 logger = logging.getLogger(__name__)
 
-STREAMS = [
-    {"url": "rtmp://a.rtmp.youtube.com/live2", "name": "YouTube"},
-    {"url": "rtmp://va.pscp.tv:80/x", "name": "Twitter"},
-    {"url": "rtmp://live-iad05.twitch.tv/app", "name": "Twitch"},
-]
-KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
+STREAMS = None
+with open(f"{Path(__file__).parent}/streams.json") as f:
+    data = json.load(f)
+    STREAMS = data['streams']
+    #STREAMS = [
+    #    {"url": "rtmp://a.rtmp.youtube.com/live2", "name": "YouTube"},
+    #    {"url": "rtmp://va.pscp.tv:80/x", "name": "Twitter"},
+    #    {"url": "rtmp://live-iad05.twitch.tv/app", "name": "Twitch"},
+    #]
 
 
 def _get_service_urls():
@@ -36,6 +41,7 @@ async def ffmpeg():
     if not service_urls:
         logger.error("no services configured")
         return
+    KS_STREAM_KEY = os.environ["KS_STREAM_KEY"]
     args = [
         "-i",
         f"rtmp://localhost:1935/live/{KS_STREAM_KEY}",
