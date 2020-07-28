@@ -22,7 +22,7 @@
             </nav>
         </header>
         <div id="main" class="wrapper">
-            <section>
+            <section id="start">
                 <h2>Start Stream</h2>
                 <form id="startstream" action="#">
                     <div class="row gtr-uniform gtr-50">
@@ -55,7 +55,12 @@
                         </div>
                     </div>
                 </form>
-                <div id="messages"></div>
+            </section>
+            <section id="stop" style="display:none">
+                <button id="stopstream" class="button primary">stop stream</button>
+            </section>
+            <section>
+            <div id="messages"></div>
             </section>
         </div>
     </div>

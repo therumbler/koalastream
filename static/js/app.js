@@ -1,5 +1,7 @@
 (function () {
     var form = document.querySelector('#startstream');
+    var startStreamWrapper = document.querySelector('#start');
+    var stopStreamWrapper = document.querySelector('#stop');
     var token;
     async function call(endpoint, data, method) {
         if (method == undefined) {
@@ -15,6 +17,7 @@
         });
         const respJson = await resp.json();
         console.log('respJson', respJson);
+        
         return respJson;
     }
 
@@ -45,8 +48,41 @@
             headers: headers
         });
         const respJson = await resp.json();
-        console.error('respJson', respJson);
+        console.log('respJson', respJson);
+        localStorage.setItem('streamInfo', JSON.stringify(respJson));
+        startStreamWrapper.style.display = 'none';
+        stopStreamWrapper.style.display = '';
+        displayRtmpUrl();
         return false
+    }
+
+    function displayRtmpUrl(){
+        var streamInfo = JSON.parse(localStorage.getItem('streamInfo'));
+        var rtmpUrl = window.location.host + ':' + streamInfo.port + '/' + streamInfo.ks_stream_key;
+        document.querySelector('#messages').innerText = 'use ' + rtmpUrl + ' to stream';
+    }
+    async function doStopStream() {
+        var streamInfo = localStorage.getItem('streamInfo')
+        if(!streamInfo){
+            console.error('no stream running');
+            return;
+        }
+        streamInfo = JSON.parse(streamInfo);
+        var containerId = streamInfo.container_id;
+        url = 'server/'+ containerId;
+        var headers = {
+            'Authorization': 'Bearer ' + token
+        }
+        var resp = await fetch(url, {
+            method: 'DELETE',
+            headers: headers
+        })
+        if(resp.status >= 400){
+            logger.error(url, 'returned error', resp.status)
+            return
+        }
+        localStorage.removeItem('streamInfo')
+        init();
     }
     function init() {
         token = localStorage.getItem('token');
@@ -55,7 +91,13 @@
             window.location.replace(pathname);
         }
         form.addEventListener('submit', doStartStream);
+        document.querySelector('#stop').addEventListener('click', doStopStream);
         document.querySelector('#logout').addEventListener("click", logout);
+        streamInfo = localStorage.getItem('streamInfo')
+        if (streamInfo){
+            startStreamWrapper.style.display = 'none';
+            stopStreamWrapper.style.display = '';
+        }
     }
     init();
 })();

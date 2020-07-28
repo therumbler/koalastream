@@ -134,6 +134,8 @@ async def create_local_docker(server: Server):
     logger.info("port = %s", port)
     resp = await _docker_run(image_name, tcp_port=port, **dict(server))
     resp["port"] = port
+    resp['ks_stream_key'] = server.KS_STREAM_KEY
+    
     return resp
 
 

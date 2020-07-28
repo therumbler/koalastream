@@ -49,6 +49,13 @@ def make_web():
             content = await f.read()
         return HTMLResponse(content)
 
+    @app.get("/survey")
+    async def signup_static():
+        async with aiofiles.open("static/survey.html") as f:
+            content = await f.read()
+        return HTMLResponse(content)
+
+
     @app.post("/server")
     @verify_with_token()
     async def create_server(response: Response, server: Server, token: str = Depends(oauth2_scheme)):
