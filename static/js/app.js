@@ -58,7 +58,7 @@
 
     function displayRtmpUrl(){
         var streamInfo = JSON.parse(localStorage.getItem('streamInfo'));
-        var rtmpUrl = window.location.host + ':' + streamInfo.port + '/' + streamInfo.ks_stream_key;
+        var rtmpUrl = window.location.host + ':' + streamInfo.port + '/live' + streamInfo.ks_stream_key;
         document.querySelector('#messages').innerText = 'use ' + rtmpUrl + ' to stream';
     }
     async function doStopStream() {
